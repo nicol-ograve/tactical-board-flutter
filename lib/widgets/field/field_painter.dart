@@ -16,7 +16,8 @@ class FieldPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (config == null) config = getDefaultFieldConfig();
 
-    painter.color = Colors.green[900];
+    painter.color = Colors.lightGreen[900];
+    painter.style = PaintingStyle.fill;
     canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), painter);
 
     painter.color = Colors.white;

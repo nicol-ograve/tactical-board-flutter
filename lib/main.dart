@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tactical_board/blocs/blocs_provider.dart';
-import 'package:tactical_board/blocs/field_bloc.dart';
-import 'package:tactical_board/widgets/field/field.dart';
+import 'package:tactical_board/widgets/field/field_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -38,32 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final fieldBloc = FieldBloc();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final RenderBox fieldBox = _fieldKey.currentContext?.findRenderObject();
-      if (fieldBox == null) {
-        debugPrint('null');
-      } else {
-        debugPrint('ok');
-        //fieldBloc.fieldSize = fieldBox.size;
-      }
-    });
     return SafeArea(
         key: _fieldKey,
-        child: Scaffold(
-            appBar: AppBar(
-              title: Text(widget.title),
-            ),
-            body: BlocProvider<FieldBloc>(
-                bloc: fieldBloc, child: buildField(fieldBloc))));
+        child: FieldScreen());
   }
 
-  Widget buildField(FieldBloc bloc) {
-    return StreamBuilder(
-        stream: bloc.players,
-        builder: (context, snapshot) {
-          return Field(
-              players: snapshot.data);
-        });
-  }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class FieldConfig {
@@ -8,6 +10,7 @@ class FieldConfig {
       this.pointsSize,
       this.middleCircleSize,
       this.playersSize,
+      this.ballSize,
       penaltyAreaHeight})
       : penaltyAreaSize = Size(penaltyAreaHeight * 3, penaltyAreaHeight),
         penaltyY = penaltyAreaHeight / 1.5,
@@ -30,6 +33,7 @@ class FieldConfig {
   final double keeperAreaWidth;
 
   final double playersSize;
+  final double ballSize;
 }
 
 FieldConfig getDefaultFieldConfig() {
@@ -40,7 +44,8 @@ FieldConfig getDefaultFieldConfig() {
       penaltyAreaHeight: 70.0,
       middleCircleSize: 50.0,
       pointsSize: 4,
-      playersSize: 40);
+      playersSize: 40,
+      ballSize: 25);
 }
 
 FieldConfig getFieldConfig(Size fieldSize) {
@@ -51,5 +56,6 @@ FieldConfig getFieldConfig(Size fieldSize) {
       penaltyAreaHeight: fieldSize.height / 6.36,
       middleCircleSize: fieldSize.width / 7.5,
       pointsSize: 4,
-      playersSize: 80);
+      playersSize: min(fieldSize.width, fieldSize.height) / 9.5,
+      ballSize: min(fieldSize.width, fieldSize.height) / 15);
 }

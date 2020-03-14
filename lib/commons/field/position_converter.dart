@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
 class PositionConverter {
-  double _playerHalfSize;
 
-  PositionConverter(double playerSize) : _playerHalfSize = playerSize / 2;
+  PositionConverter();
 
-  Offset fieldToModel(Offset position) =>
-      Offset(position.dx + _playerHalfSize, position.dy + _playerHalfSize);
+  Offset fieldToModel(Offset position, double size) {
+      final halfSize = size / 2;
+      return Offset(position.dx + halfSize, position.dy + halfSize);
+  }
 
-  Offset modelToField(Offset position) =>
-      Offset(position.dx - _playerHalfSize, position.dy - _playerHalfSize);
+  Offset modelToField(Offset position, double size) {
+      final halfSize = size / 2;
+      return Offset(position.dx - halfSize, position.dy - halfSize);
+  }
 }

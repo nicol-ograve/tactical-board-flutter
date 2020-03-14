@@ -1,68 +1,93 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tactical_board/blocs/blocs_provider.dart';
-import 'package:tactical_board/blocs/field_bloc.dart';
+import 'package:tactical_board/blocs/field/field_bloc.dart';
 import 'package:tactical_board/commons/field/position_converter.dart';
 import 'package:tactical_board/model/field_config.dart';
+import 'package:tactical_board/model/field_entity.dart';
 import 'package:tactical_board/model/player.dart';
+import 'package:tactical_board/widgets/field/field_items/ball_item.dart';
+import 'package:tactical_board/widgets/field/field_items/player_item.dart';
 import 'package:tactical_board/widgets/field/field_painter.dart';
-import 'package:tactical_board/widgets/player_item.dart';
 
 class Field extends StatelessWidget {
-  Field({Key key, this.players, this.child, this.playerSize});
+  Field(
+      {Key key,
+      this.fieldEntities,
+      this.bloc,
+      this.config,
+      this.ballPosition,
+      this.child});
 
   final Widget child;
-  final List<Player> players;
-  final double playerSize;
+  final List<FieldEntity> fieldEntities;
+  final Offset ballPosition;
+  final FieldConfig config;
+  final FieldBloc bloc;
 
   final GlobalKey _key = GlobalKey();
 
+  final converter = PositionConverter();
+
   @override
   Widget build(BuildContext context) {
-    FieldBloc fieldBloc = BlocProvider.of<FieldBloc>(context);
-    return StreamBuilder(
-        stream: fieldBloc.config,
-        builder: (context, snapshot) =>
-            buildDragTarget(snapshot.data, fieldBloc));
-  }
+    final fieldEntities = this.fieldEntities != null ? this.fieldEntities : [];
 
-  Widget buildDragTarget(FieldConfig config, FieldBloc fieldBloc) {
-    final converter =
-        PositionConverter(config != null ? config.playersSize : 0);
-    final players = this.players != null ? this.players : [];
     return DragTarget<String>(
         key: _key,
-        onAccept: (_) {
-          print("Accepted");
-        },
-        onWillAccept: (_){
-          print("AKD");
+        onAccept: (_) {},
+        onWillAccept: (_) {
           return true;
-        } ,
+        },
         onLeave: (_) => {},
-        builder: (context, List<String> candidateData, rejectedData) {
+        builder: (context, candidateData, rejectedData) {
           return Stack(children: <Widget>[
             CustomPaint(
-                painter: FieldPainter(config, fieldBloc.updateFieldSize),
+                painter: FieldPainter(config, bloc.updateFieldSize),
                 child: Container()),
-            ...players.map((player) {
-              Offset playerFieldPosition =
-                  converter.modelToField(player.position);
+            ...fieldEntities.map((entity) {
+              double size = entitySize(entity);
+              Offset entityFieldPosition =
+                  converter.modelToField(entity.position, size);
               return Positioned(
-                  left: playerFieldPosition.dx,
-                  top: playerFieldPosition.dy,
-                  child: PlayerItem(
-                      size: config?.playersSize,
-                      color: player.color,
-                      onDrag: (Offset absoluteOffset) {
-                        fieldBloc.playerMoved(
-                            player,
-                            converter.fieldToModel(
-                                _getRelativeDragOffset(absoluteOffset)));
-                      }));
+                  left: entityFieldPosition.dx,
+                  top: entityFieldPosition.dy,
+                  child: getFieldEntityWidget(entity,
+                      (FieldEntity entity, Offset newPosition) {
+                    bloc.entityMoved(
+                        entity, converter.fieldToModel(newPosition, size));
+                  }));
             })
           ]);
         });
+  }
+
+  double entitySize(FieldEntity entity) {
+    switch (entity.type) {
+      case FieldEntityType.Ball:
+        return config.ballSize;
+      default:
+        return config.playersSize;
+    }
+  }
+
+  Widget getFieldEntityWidget(
+      FieldEntity entity, Function(FieldEntity, Offset) onEntityMoved) {
+    if (entity.type == FieldEntityType.Player) {
+      Player player = entity as Player;
+      return PlayerItem(
+          size: config?.playersSize,
+          color: player.color,
+          shirtNumber: player.shirtNumber,
+          onDrag: (Offset absoluteOffset) {
+            onEntityMoved(player, _getRelativeDragOffset(absoluteOffset));
+          });
+    } else {
+      return BallItem(
+          size: config?.ballSize,
+          onDrag: (Offset absoluteOffset) {
+            onEntityMoved(entity, _getRelativeDragOffset(absoluteOffset));
+          });
+    }
   }
 
   Offset _getFieldPosition() {
