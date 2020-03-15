@@ -4,6 +4,6 @@ A Flutter project which allow soccer trainers to create and show animated scheme
 
 ## Sample
 
-Simpla demo of what can actually be done with the app
+Simple demo of what can actually be done with the app
 
 https://youtu.be/lQbdnDCHGH8
